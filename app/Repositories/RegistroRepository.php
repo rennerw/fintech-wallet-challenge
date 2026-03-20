@@ -8,20 +8,20 @@ use App\Models\Registro;
 class RegistroRepository
 {
     public function __construct(
-        private Extrato $model
+        private Registro $model
     ) {}
 
     /**
      * Criar entrada de débito
      */
     public function createDebit(
-        Registro $Registro,
+        Extrato $extrato,
         int $walletId,
         float $amount,
-        string $description = null
-    ): Extrato {
+        string $description
+    ): Registro {
         return $this->model->create([
-            'registro_id' => $Registro->id,
+            'extrato_id' => $extrato->id,
             'carteira_id' => $walletId,
             'debito' => $amount,
             'credito' => 0,
@@ -33,13 +33,13 @@ class RegistroRepository
      * Criar entrada de crédito
      */
     public function createCredit(
-        Registro $Registro,
+        Extrato $extrato,
         int $walletId,
         float $amount,
-        string $description = null
-    ): Extrato {
+        string $description
+    ): Registro {
         return $this->model->create([
-            'registro_id' => $Registro->id,
+            'extrato_id' => $extrato->id,
             'carteira_id' => $walletId,
             'debito' => 0,
             'credito' => $amount,
@@ -61,10 +61,10 @@ class RegistroRepository
     /**
      * Obter total de débitos e créditos de um registro
      */
-    public function getJournalTotals(int $registroId): array
+    public function getJournalTotals(int $extratoId): array
     {
         $entries = $this->model
-            ->where('registro_id', $registroId)
+            ->where('extrato_id', $extratoId)
             ->get();
 
         return [
@@ -76,9 +76,9 @@ class RegistroRepository
     /**
      * Verificar se journal está balanceado (debit = credit)
      */
-    public function isJournalBalanced(int $registroId): bool
+    public function isJournalBalanced(int $extratoId): bool
     {
-        $totals = $this->getJournalTotals($registroId);
+        $totals = $this->getJournalTotals($extratoId);
         
         return $totals['total_debit'] === $totals['total_credit'];
     }

@@ -16,7 +16,7 @@ return new class extends Migration
             
             $table->foreignId('extrato_id')
                 ->constrained('extratos')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
             
             $table->foreignId('carteira_id')
                 ->constrained('carteiras')

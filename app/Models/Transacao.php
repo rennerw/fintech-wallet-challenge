@@ -8,6 +8,7 @@ class Transacao extends Model
 {
 
     protected $table = 'transacoes';
+    public $timestamps = false;
 
     protected $fillable = [
         'de_user_id',
@@ -17,6 +18,7 @@ class Transacao extends Model
         'tipo',
         'completed_at',
         'motivo_falha',
+        'created_at'
     ];
 
     public function deUser()

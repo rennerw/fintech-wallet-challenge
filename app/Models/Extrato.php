@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Extrato extends Model
 {
     protected $table = 'extratos';
+    public $timestamps = false;
 
     protected $fillable = [
         'transacao_id',
         'status',
         'descricao',
+        'posted_at',
         'created_at',
     ];
 

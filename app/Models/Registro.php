@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Registro extends Model
 {
     protected $table = 'registros';
+    public $timestamps = false;
 
     protected $fillable = [
+        'extrato_id',
+        'carteira_id',
         'user_id',
-        'created_at',
         'debito',
         'credito',
         'descricao',

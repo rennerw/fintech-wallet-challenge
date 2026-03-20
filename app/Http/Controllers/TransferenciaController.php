@@ -35,7 +35,7 @@ class TransferenciaController extends Controller
         $result = $this->transferenciaService->transfer(
             $request->user(),
             $toUser,
-            (float) $request->amount
+            (float) $request->valor
         );
 
         if ($result['success']) {

@@ -10,6 +10,7 @@ use App\Repositories\CarteiraRepository;
 use App\Repositories\RegistroRepository;
 //use App\Exceptions\InsufficientBalanceException;
 use App\Exceptions\InvalidTransferException;
+use App\Models\Extrato;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -27,7 +28,6 @@ class TransferenciaService
      */
     public function transfer(User $de, User $para, float $amount): array
     {
-        
         try {
             // Validação básica
             $this->validateTransfer($de, $para, $amount);
@@ -39,8 +39,9 @@ class TransferenciaService
             $this->transacaoRepo->create([
                 'de_user_id' => $de->id,
                 'para_user_id' => $para->id,
-                'valor' => $amount,
+                'valor' => $amount ?? 0.01,
                 'status' => 'falhou',
+                'motivo_falha' => $e->getMessage(),
                 'tipo' => 'debito',
             ]);
 
@@ -48,7 +49,7 @@ class TransferenciaService
                 'de' => $de->id,
                 'para' => $para->id,
                 'valor' => $amount,
-                'error' => $e->getMessage(),
+                'error' => $e,
             ]);
 
             throw $e;
@@ -57,8 +58,8 @@ class TransferenciaService
             Log::error('Erro ao processar transferência', [
                 'de' => $de->id,
                 'para' => $para->id,
-                'valor' => $amount,
-                'error' => $e->getMessage(),
+                'valor' => $amount ?? 0.01,
+                'error' => $e,
             ]);
 
             return [
@@ -91,7 +92,7 @@ class TransferenciaService
         ]);
 
         // 3. Criar Registro de transferência
-        $registro = Registro::create([
+        $extrato = Extrato::create([
             'transacao_id' => $transacao->id,
             'status' => 'pendente',
             'descricao' => "Transferencia de {$from->email} para {$to->email} - R\$ {$amount}",
@@ -100,38 +101,38 @@ class TransferenciaService
         // 4. Criar linhas do ledger (dupla entrada)
         // Débito da carteira de saída
         $this->registroRepo->createDebit(
-            $registro,
-            $from->wallet->id,
+            $extrato,
+            $from->carteira->id,
             $amount,
-            'Transferência'
+            'Transferência para '.$to->email
         );
 
         // Crédito da carteira de entrada
         $this->registroRepo->createCredit(
-            $registro,
-            $to->wallet->id,
+            $extrato,
+            $to->carteira->id,
             $amount,
-            'Crédito de transferência'
+            'Crédito transferido de '.$from->email
         );
 
         // 5. Verificar se o journal está balanceado
-        if (!$this->registroRepo->isJournalBalanced($registro->id)) {
+        if (!$this->registroRepo->isJournalBalanced($extrato->id)) {
             throw new \Exception(
                 'Falha na validação contábil'
             );
         }
 
         // 6. Atualizar saldos (denormalized)
-        $this->carteiraRepo->decrement($from->wallet->id, $amount);
-        $this->carteiraRepo->increment($to->wallet->id, $amount);
+        $this->carteiraRepo->decrement($from->carteira->id, $amount);
+        $this->carteiraRepo->increment($to->carteira->id, $amount);
 
         // 7. Marcar como completa
         $this->transacaoRepo->update($transacao->id, [
-            'status' => 'concluido',
+            'status' => 'concluida',
             'completed_at' => now(),
         ]);
 
-        $registro->update(['status' => 'concluido']);
+        $extrato->update(['status' => 'concluida']);
 
         Log::info('Transferência realizada com sucesso', [
             'transacao_id' => $transacao->id,
@@ -142,10 +143,7 @@ class TransferenciaService
 
         return [
             'success' => true,
-            'message' => 'Transferência realizada com sucesso',
-            'transacao_id' => $transacao->id,
-            'from_balance' => $this->carteiraRepo->getBalance($from->id),
-            'to_balance' => $this->carteiraRepo->getBalance($to->id),
+            'message' => 'Transferência realizada com sucesso. Novo saldo: R$ '.$this->carteiraRepo->getBalance($from->carteira->id)
         ];
     }
 
