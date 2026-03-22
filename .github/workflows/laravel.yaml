@@ -47,14 +47,6 @@ jobs:
       run: npm run build
     - name: Generate Key
       run: php artisan key:generate --env=testing
-    - name: Configure DB for CI
-      run: |
-        echo "DB_CONNECTION=pgsql" >> .env.testing
-        echo "DB_HOST=127.0.0.1" >> .env.testing
-        echo "DB_PORT=5432" >> .env.testing
-        echo "DB_DATABASE=tecktest" >> .env.testing
-        echo "DB_USERNAME=root" >> .env.testing
-        echo "DB_PASSWORD=toor" >> .env.testing
     - name: Migrate
       run: php artisan migrate --env=testing
     - name: Directory Permissions
