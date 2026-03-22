@@ -10,6 +10,20 @@ jobs:
   laravel-tests:
 
     runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: toor
+          POSTGRES_DB: tecktest
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U root"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
     - name: Setup PHP
@@ -25,8 +39,6 @@ jobs:
       run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
     - name: Generate Key
       run: php artisan key:generate
-    - name: Install/Update Passport
-      run: php artisan install:api --passport
     - name: Migrate
       run: php artisan migrate --env=testing --force
     - name: Directory Permissions
