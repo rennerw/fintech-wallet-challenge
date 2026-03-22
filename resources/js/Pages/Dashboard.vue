@@ -57,8 +57,6 @@ const atualizarValores = async () => {
                                 :de_user="transf.de_user ? transf.de_user.name : 'N/A'"
                                 :para_user="transf.para_user ? transf.para_user.name : 'N/A'"
                             >
-                            {{ transferencias }}
-                            </InfoTransferencia>
 
                         </div>
                         <div v-else class="text-gray-500">

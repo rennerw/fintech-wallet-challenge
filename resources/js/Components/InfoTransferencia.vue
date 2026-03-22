@@ -40,6 +40,5 @@ defineProps({
         <p class="text-gray-700 mb-1">
             {{ descricao ? descricao + ' - ' : '' }} {{ new Date(data).toLocaleDateString() }}
         </p>
-        <slot></slot>
     </div>
 </template>
