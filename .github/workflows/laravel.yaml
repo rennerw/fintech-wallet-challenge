@@ -37,11 +37,12 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
-    - name: Node Modules
+    - name: Node
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        run: npm install
+    - name: Install Node Modules
+      run: npm install
     - name: Build Assets
       run: npm run build
     - name: Generate Key
