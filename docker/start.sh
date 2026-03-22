@@ -1,10 +1,9 @@
 #!/bin/sh
 set -e
 
-php artisan migrate:reset --force
+# Se o banco for novo, migrate:reset pode falhar - isso é esperado e ignorado
+php artisan migrate:reset --force || true
 php artisan migrate --force
 php artisan db:seed --class=DatabaseSeeder --force
-
-npm run dev -- --host 0.0.0.0 --port 5173 &
-php artisan serve --host=0.0.0.0 --port="${PORT:-8000}" &
-wait
+npm run build
+php artisan serve --host=0.0.0.0 --port="${PORT:-8000}"
