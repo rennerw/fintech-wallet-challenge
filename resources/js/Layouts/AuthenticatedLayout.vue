@@ -1,13 +1,61 @@
+<style>
+@keyframes pulse {
+    0%, 100% {
+        width: 3rem;
+        height: 3rem;
+    }
+    50% {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+}
+</style>
 <script setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import FormTransacao from '@/Pages/FormTransacao.vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+
 
 const showingNavigationDropdown = ref(false);
+const showingModal = ref(false);
+const page = usePage();
+
+function openModal() {
+    showingNavigationDropdown.value = false;
+    showingModal.value = true;
+}
+
+function closeModal() {
+    showingNavigationDropdown.value = false;
+    showingModal.value = false;
+}
+
+onBeforeMount(async () => {
+    atualizarSaldo();
+});
+
+const emit = defineEmits(['atualizarValores']);
+
+function atualizarSaldo() {
+    emit('atualizarValores');
+    axios.get('/api/saldo', {
+        withCredentials: true,
+    })
+    .then(response => {
+        page.props.carteira = {};
+        page.props.carteira.valor_atual = response.data.data;
+    })
+    .catch(error => {
+        console.error('Erro ao atualizar o saldo:', error); // Só para debug, nao deve ir a producao
+    });
+}
+
 </script>
 
 <template>
@@ -38,6 +86,12 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('dashboard')"
                                 >
                                     Dashboard
+                                </NavLink>
+                                <NavLink
+                                    :href="route('extrato')"
+                                    :active="route().current('extrato')"
+                                >
+                                    Extrato
                                 </NavLink>
                             </div>
                         </div>
@@ -194,5 +248,17 @@ const showingNavigationDropdown = ref(false);
                 <slot />
             </main>
         </div>
+        <button 
+            type="button" style="position: fixed; 
+            bottom: 27rem; right: 1rem; display: flex; align-items: center; 
+            justify-content: center;
+            border: none; border-radius: 50%; width: 3rem; height: 3rem; font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); cursor: pointer;
+            
+            " 
+            class="bg-red-800 text-white animate-pulse" @click="openModal">R$</button>
+
+        <FormTransacao :show="showingModal" @close="closeModal" @atualizar-saldo="atualizarSaldo"/>
+        
     </div>
 </template>

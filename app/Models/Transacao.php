@@ -11,6 +11,7 @@ class Transacao extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
         'de_user_id',
         'para_user_id',
         'valor',
@@ -29,5 +30,10 @@ class Transacao extends Model
     public function paraUser()
     {
         return $this->belongsTo(User::class, 'para_user_id');
+    }
+
+    public function extrato()
+    {
+        return $this->hasOne(Extrato::class, 'transacao_id', 'id');
     }
 }

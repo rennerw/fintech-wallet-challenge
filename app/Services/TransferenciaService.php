@@ -8,12 +8,13 @@ use App\Models\Registro;
 use App\Repositories\TransacaoRepository;
 use App\Repositories\CarteiraRepository;
 use App\Repositories\RegistroRepository;
-//use App\Exceptions\InsufficientBalanceException;
+use App\Exceptions\InsufficientBalanceException;
 use App\Exceptions\InvalidTransferException;
 use App\Models\Extrato;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class TransferenciaService
 {
@@ -22,6 +23,47 @@ class TransferenciaService
         private CarteiraRepository $carteiraRepo,
         private RegistroRepository $registroRepo,
     ) {}
+
+    public function getLastsTransfers()
+    {
+        return $this->transacaoRepo->getLastsTransfers(Auth::user()->id);
+    }
+
+    public function getAllTransfers($filters = [])
+    {
+        try{
+            $page = (int)($filters['page'] ?? 1);
+            $perPage = (int)($filters['per_page'] ?? 15);
+            $usuario = $filters['nome_usuario'] ?? null;
+            $tipo = $filters['tipo'] ?? null;
+            $tipo = $tipo == 'credito' ? 'credito' : ($tipo == 'debito' ? 'debito' : null);
+            $startDate = $filters['data_inicio'] ?? null;
+            $endDate = $filters['data_fim'] ?? null;
+    
+            return $this->transacaoRepo->getUserTransacoes(
+                Auth::user()->id,
+                $page,
+                $perPage,
+                $usuario,
+                $tipo,
+                $startDate,
+                $endDate
+            );
+
+        }
+        catch (\Exception $e) {
+            Log::error('Erro ao obter extrato completo', [
+                'user_id' => Auth::user()->id,
+                'filters' => $filters,
+                'error' => $e,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Ocorreu um erro ao obter o extrato completo. Tente novamente mais tarde.',
+            ];
+        }
+    }
 
     /**
      * Executar transferência entre usuários
@@ -77,7 +119,7 @@ class TransferenciaService
     {
         // 1. Verificar saldo com lock
         if (!$this->carteiraRepo->hasSufficientBalance($from->id, $amount)) {
-            throw new \Exception(
+            throw new InsufficientBalanceException(
                 'Saldo insuficiente para realizar a transferência'
             );
         }

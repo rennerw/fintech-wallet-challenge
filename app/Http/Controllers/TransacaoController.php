@@ -19,4 +19,14 @@ class TransacaoController extends Controller
         return Inertia::render('Transacao/Create');
     }
 
+    public function getLastsTransfers()
+    {
+        return $this->transferenciaService->getLastsTransfers();
+    }
+
+    public function getAllTransfers(Request $request)
+    {
+        return $this->transferenciaService->getAllTransfers($request->all());
+    }
+
 }

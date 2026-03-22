@@ -23,7 +23,7 @@ class TransferenciaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'para_user' => ['required', 'email', 'exists:users,email',function ($attribute, $value, $fail) {
+            'email' => ['required', 'email', 'exists:users,email',function ($attribute, $value, $fail) {
                 if ($value === $this->user()->email) {
                     $fail('O destinatário deve ser diferente do remetente.');
                 }
@@ -35,9 +35,9 @@ class TransferenciaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'para_user.required' => 'E-mail do destinatário é obrigatório',
-            'para_user.email' => 'E-mail inválido',
-            'para_user.exists' => 'Usuário não encontrado',
+            'email.required' => 'E-mail do destinatário é obrigatório',
+            'email.email' => 'E-mail inválido',
+            'email.exists' => 'Usuário não encontrado',
             'valor.required' => 'Valor é obrigatório',
             'valor.numeric' => 'Valor deve ser numérico',
             'valor.gt' => 'Valor deve ser maior que zero',

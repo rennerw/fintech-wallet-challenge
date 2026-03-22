@@ -16,10 +16,12 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard', [
-        'carteira' => Auth::user()->carteira()->first(),
-    ]);
+    return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified', 'auth:sanctum'])->name('dashboard');
+
+Route::get('/extrato', function () {
+    return Inertia::render('Extrato');
+})->middleware(['auth', 'verified', 'auth:sanctum'])->name('extrato');
 
 Route::middleware(['auth','auth:sanctum'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

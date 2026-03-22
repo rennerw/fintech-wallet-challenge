@@ -18,11 +18,11 @@ class TransferenciaController extends Controller
     public function store(TransferenciaRequest $request)
     {
         try{
-            $toUser = User::where('email', $request->para_user)->firstOrFail();
+            $toUser = User::where('email', $request->email)->firstOrFail();
         }
         catch (\Exception $e) {
             Log::error('Erro ao encontrar destinatário', [
-                'email' => $request->para_user,
+                'email' => $request->email,
                 'error' => $e->getMessage(),
             ]);
 

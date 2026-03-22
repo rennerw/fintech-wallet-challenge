@@ -14,4 +14,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     
     Route::post('/transferencia', [TransferenciaController::class, 'store']);
+    Route::get('/ultimas-transferencias', [TransacaoController::class, 'getLastsTransfers']);
+    Route::get('/extrato-completo', [TransacaoController::class, 'getAllTransfers']);
+    Route::get('/saldo', function (Request $request) {
+        return ['success' => true, 'data' => $request->user()->carteira()->first()->valor_atual ?? 0];
+    });
 });

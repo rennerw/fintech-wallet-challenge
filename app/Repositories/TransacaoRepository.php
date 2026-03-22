@@ -2,13 +2,19 @@
 
 namespace App\Repositories;
 
+use App\Models\Registro;
 use App\Models\Transacao;
+use Exception;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Log;
+
+use function Symfony\Component\String\s;
 
 class TransacaoRepository
 {
     public function __construct(
-        private Transacao $model
+        private Transacao $model,
     ) {}
 
     /**
@@ -26,14 +32,15 @@ class TransacaoRepository
         int $userId,
         int $page = 1,
         int $perPage = 15,
+        ?string $userName = null,
         ?string $type = null,
         ?string $startDate = null,
         ?string $endDate = null
-    ): Paginator {
+    ): LengthAwarePaginator {
         $query = $this->model
             ->where(function ($q) use ($userId) {
                 $q->where('de_user_id', $userId)
-                  ->orWhere('para_user_id', $userId);
+                    ->orWhere('para_user_id', $userId);
             })
             ->where('status', 'concluida');
 
@@ -45,6 +52,13 @@ class TransacaoRepository
                 $query->where('para_user_id', $userId);
             }
         }
+        if($userName) {
+            $query->whereHas('deUser', function ($q) use ($userName) {
+                $q->where('name', 'like', "%$userName%");
+            })->orWhereHas('paraUser', function ($q) use ($userName) {
+                $q->where('name', 'like', "%$userName%");
+            });
+        }
 
         // Filtro por período
         if ($startDate) {
@@ -55,27 +69,44 @@ class TransacaoRepository
         }
 
         return $query
-            ->with(['deUser:id,name,email', 'paraUser:id,name,email'])
+            ->with(['deUser:id,name,email', 'paraUser:id,name,email','extrato:transacao_id,id,descricao'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
+        
     }
 
     /**
      * Obter últimas N transações
      */
-    public function getRecentTransacoes(int $userId, int $limit = 5): array
+    public function getLastsTransfers(int $userId): array
     {
-        return $this->model
-            ->where(function ($q) use ($userId) {
-                $q->where('de_user_id', $userId)
-                  ->orWhere('para_user_id', $userId);
-            })
-            ->where('status', 'concluida')
-            ->with(['deUser:id,name,email', 'paraUser:id,name,email'])
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get()
-            ->toArray();
+        try{
+
+            return [
+                'success' => true,
+                'data' => $this->model
+                ->where(function ($q) use ($userId) {
+                    $q->where('de_user_id', $userId)
+                      ->orWhere('para_user_id', $userId);
+                })
+                ->where('status', 'concluida')
+                ->with(['deUser:id,name,email', 'paraUser:id,name,email'])
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get()
+                ->toArray()];
+        }
+        catch (\Exception $e) {
+            Log::error('Erro ao obter últimas transferências', [
+                'user_id' => $userId,
+                'error' => $e,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Ocorreu um erro ao obter as últimas transferências. Tente novamente mais tarde.',
+            ];
+        }
     }
 
     /**

@@ -23,21 +23,6 @@ class CarteiraService
     }
 
     /**
-     * Obter informações completas da carteira
-     */
-    public function getWalletInfo(User $user): array
-    {
-        $wallet = $this->carteiraRepo->getByUser($user);
-        $recentTransactions = $this->transacaoRepo->getRecentTransacoes($user->id, 5);
-
-        return [
-            'balance' => $wallet?->balance ?? 0.00,
-            'recent_transactions' => $recentTransactions,
-            'updated_at' => $wallet?->updated_at,
-        ];
-    }
-
-    /**
      * Criar carteira para novo usuário
      */
     public function createWallet(User $user, float $initialBalance = 1000.00): Carteira
