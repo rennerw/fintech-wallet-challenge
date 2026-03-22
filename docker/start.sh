@@ -6,4 +6,4 @@ php artisan migrate:reset --force || true
 php artisan migrate --force
 php artisan db:seed --class=DatabaseSeeder --force
 npm run build
-php artisan serve --host=0.0.0.0 --port="${PORT:-8000}"
+php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"
