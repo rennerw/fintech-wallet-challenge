@@ -34,7 +34,7 @@ jobs:
         coverage: xdebug, pcov
     - uses: actions/checkout@v4
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: php -r "file_exists('.env.testing') || copy('.env.example', '.env.testing');"
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
     - name: Node
@@ -46,7 +46,7 @@ jobs:
     - name: Build Assets
       run: npm run build
     - name: Generate Key
-      run: php artisan key:generate
+      run: php artisan key:generate --env=testing
     - name: Configure DB for CI
       run: |
         echo "DB_CONNECTION=pgsql" >> .env.testing
