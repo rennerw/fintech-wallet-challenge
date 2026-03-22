@@ -28,10 +28,10 @@ RUN npm install
 
 COPY . .
 
+RUN npm run build
 RUN composer dump-autoload --optimize
 RUN chmod +x /var/www/html/docker/start.sh
 
 EXPOSE 10000
-EXPOSE 5173
 
 CMD ["/var/www/html/docker/start.sh"]
