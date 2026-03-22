@@ -56,7 +56,7 @@ const atualizarValores = async () => {
                                 :tipo="transf.tipo"
                                 :de_user="transf.de_user ? transf.de_user.name : 'N/A'"
                                 :para_user="transf.para_user ? transf.para_user.name : 'N/A'"
-                            >
+                            />
 
                         </div>
                         <div v-else class="text-gray-500">
