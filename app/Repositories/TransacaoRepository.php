@@ -85,6 +85,12 @@ class TransacaoRepository
             return [
                 'success' => true,
                 'data' => $this->model
+                ->selectRaw('id, de_user_id, para_user_id, valor, 
+                case 
+                    when de_user_id = ? then \'debito\' 
+                    when para_user_id = ? then \'credito\' 
+                    else \'desconhecido\'
+                end as tipo, status, created_at', [$userId, $userId])
                 ->where(function ($q) use ($userId) {
                     $q->where('de_user_id', $userId)
                       ->orWhere('para_user_id', $userId);

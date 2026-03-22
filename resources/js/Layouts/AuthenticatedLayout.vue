@@ -61,7 +61,7 @@ function atualizarSaldo() {
 <template>
     <div>
         <div class="min-h-screen bg-gray-100">
-            <div style="position: fixed; width: 100%; height: 100%; z-index: 10; display: flex; align-items: center; justify-content: right;">
+            <div style="position: fixed; bottom: 48%; right: 20px; z-index: 1000;">
                 <button 
                     type="button" style="border: none; border-radius: 50%; 
                     width: 3rem; height: 3rem; font-weight: bold;
@@ -136,11 +136,6 @@ function atualizarSaldo() {
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink
-                                            :href="route('profile.edit')"
-                                        >
-                                            Profile
-                                        </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
                                             method="post"
