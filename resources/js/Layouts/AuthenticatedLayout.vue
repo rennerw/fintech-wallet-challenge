@@ -61,6 +61,17 @@ function atualizarSaldo() {
 <template>
     <div>
         <div class="min-h-screen bg-gray-100">
+            <div style="position: fixed; width: 100%; height: 100%; z-index: 10; display: flex; align-items: center; justify-content: right;">
+                <button 
+                    type="button" style="border: none; border-radius: 50%; 
+                    width: 3rem; height: 3rem; font-weight: bold;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); cursor: pointer;
+                    margin-right: 30px;
+                    " 
+                    class="bg-red-800 text-white animate-pulse" @click="openModal">R$</button>
+            </div>
+    
+            <FormTransacao :show="showingModal" @close="closeModal" @atualizar-saldo="atualizarSaldo"/>
             <nav
                 class="border-b border-gray-100 bg-white"
             >
@@ -248,17 +259,6 @@ function atualizarSaldo() {
                 <slot />
             </main>
         </div>
-        <button 
-            type="button" style="position: fixed; 
-            bottom: 27rem; right: 1rem; display: flex; align-items: center; 
-            justify-content: center;
-            border: none; border-radius: 50%; width: 3rem; height: 3rem; font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); cursor: pointer;
-            
-            " 
-            class="bg-red-800 text-white animate-pulse" @click="openModal">R$</button>
-
-        <FormTransacao :show="showingModal" @close="closeModal" @atualizar-saldo="atualizarSaldo"/>
         
     </div>
 </template>
